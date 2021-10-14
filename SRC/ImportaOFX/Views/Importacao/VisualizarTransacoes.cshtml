@@ -1,0 +1,131 @@
+﻿@model IEnumerable<ImportaOFX.Models.Transacao>
+@{
+    ViewBag.Title = "Visualizar Transações";
+}
+<br />
+<h2>Conferência Cega por Pedido</h2>
+<hr />
+@if (TempData["Erro"] != null)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                @TempData["Erro"]
+            </div>
+        </div>
+    </div>
+}
+@using (Html.BeginForm("VisualizarTransacoes", "Importacao", FormMethod.Get))
+{
+    <div id="divhide" class="container">
+        <div class="row">
+            <div class=" form-group col-auto">
+                <label class="control-label" for="dataI">Data Entrada Inicial</label>
+                <input class="form-control" id="dataI" name="dataI" type="date" required />
+            </div>
+            <div class=" form-group col-auto">
+                <label class="control-label" for="dataF">Data Entrada Final</label>
+                <input class="form-control" id="dataF" name="dataF" type="date" required />
+            </div>
+        </div>
+        <div class="form-group">
+            <button id="visualizar" type="submit" class="btn btn btn-primary">Visulizar Transacoes</button>
+        </div>
+    </div>
+    <hr />
+
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-hover table-responsive" id="table">
+                <thead>
+                    <tr class="bg-success">
+                        <th>
+                            @Html.DisplayNameFor(model => model.DataTransacao)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TipoTransacao)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Descricao)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ValorTransacao)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Observacao)
+                        </th>
+                        <th class="text-hide">
+                            @Html.DisplayName("")
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var Item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.HiddenFor(modelItem => Item.Id)
+                                @Html.DisplayFor(modelItem => Item.DataTransacao)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Item.TipoTransacao)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Item.Descricao)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Item.ValorTransacao)
+                            </td>
+                            <td id="tdObservacao">
+                                @Html.DisplayFor(modelItem => Item.Observacao)
+                            </td>
+                            <td>
+                                <a href="@Url.Action("EditarObservacao", "Importacao", new { Id = Item.Id})" class="editar btn btn-warning">
+                                    <span class="fa fa-edit" data-toggle="tooltip" data-placement="right" title="Editar">Editar</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    @section Scripts {
+        <script type="text/javascript" src="~/lib/bootbox.js/bootbox.min.js"></script>
+
+        <script>
+            //Editar Observação através do bootbox...
+            $(document).on('click', ".editar", function (e) {
+                var href = $(this).attr('href'); //Pega o Href que será utilizado
+                var observacao = $(this).closest('tr').find('#tdObservacao').text();
+                e.preventDefault(); //Retira a ação padrão do Click
+                bootbox.prompt({
+                    title: "Observação!",
+                    inputType: "textarea",
+                    value: observacao.trim(),
+                    buttons: {
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Cancelar',
+                            className: 'btn-danger'
+                        },
+                        confirm: {
+                            label: '<i class="fa fa-save"></i> Salvar',
+                            className: 'btn-success'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result != null) {
+                            document.location.href = href + "?observacao=" + result;
+                        }
+                    }
+                });
+            });
+        </script>
+    }
+
+}
+
+
+
+
